@@ -1,3 +1,7 @@
+Edit: Purpose of this fork is to have a minimalist set of files to use Dear Imgui. This fork will use OpenGL and GLFW.
+      It is planned to use CMake for Build System generation so it can be used on windows and linux with a single CMakeList.txt File.
+
+
 Dear ImGui
 =====
 
