@@ -1,3 +1,0 @@
-C:/Users/kuers/Desktop/Twitch_Dev/imgui/examples/example_glfw_opengl3/imgui_linux_setup/build/CMakeFiles/customizedImgui.dir
-C:/Users/kuers/Desktop/Twitch_Dev/imgui/examples/example_glfw_opengl3/imgui_linux_setup/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/kuers/Desktop/Twitch_Dev/imgui/examples/example_glfw_opengl3/imgui_linux_setup/build/CMakeFiles/ZERO_CHECK.dir
