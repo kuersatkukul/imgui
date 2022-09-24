@@ -12,8 +12,16 @@ add_executable(customizedImgui
 	"backend/imgui_impl_opengl3.cpp"
 )
 
-find_package(glfw3 3.3 REQUIRED)
+if(WIN32)
+	find_package(glfw3 REQUIRED PATHS "C:/Program Files (x86)/GLFW")
+elseif(UNIX)
+	find_package(glfw3 REQUIRED)
+else()
+	message(FATAL_ERROR "Supported platforms: Windows, Linux")
+endif()
+
 find_package(OpenGL REQUIRED)
+
 target_include_directories(customizedImgui PUBLIC
 	"${CMAKE_CURRENT_LIST_DIR}"
 	"${CMAKE_CURRENT_LIST_DIR}/backend"
@@ -21,5 +29,5 @@ target_include_directories(customizedImgui PUBLIC
 
 target_link_libraries(customizedImgui PUBLIC
 	glfw
-	OpenGL
+	OpenGL::GL
 )
