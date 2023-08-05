@@ -12,6 +12,8 @@
 #endif
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
 #include <string>
+#include <stdexcept>
+#include "Roboto-Regular.embed"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -38,6 +40,11 @@ public:
     // Main loop
     void run()
     {
+        //if(!m_initialized)
+        //{
+        //    throw std::exception("No call to init() before run()!");
+        //    return;
+        //}
         ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
         while (!glfwWindowShouldClose(m_glfwWindow))
         {
@@ -51,9 +58,9 @@ public:
             // Start the Dear ImGui frame
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
             ImGui::SetNextWindowPos( ImVec2(0,0) ); //Windows starts top left
             ImGui::SetNextWindowSize(ImVec2(m_windowWidth, m_windowHeight));
-            ImGui::NewFrame();
             // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
             if (m_showDemoWindow)
             {
@@ -67,24 +74,79 @@ public:
             }
             else
             {
-                // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
                 
+                // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
                 static float f = 0.0f;
                 static int counter = 0;
-                ImGui::Begin("Hello, world!", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoCollapse|ImGuiWindowFlags_NoTitleBar);                          // Create a window called "Hello, world!" and append into it.
-                ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-                ImGui::Checkbox("Demo Window", &m_showDemoWindow);      // Edit bools storing our window open/close state
-                ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-                ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+                ImGui::Begin("Hallo Dispatcher Gxven!", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_MenuBar|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoCollapse|ImGuiWindowFlags_NoTitleBar);                          // Create a window called "Hello, world!" and append into it.
 
-                if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                    counter++;
+                // Left
+                static int selected = 0;
+                {
+                    ImGui::BeginChild("left pane", ImVec2(200, 0), true);
+                    for (int i = 0; i < 100000; i++)
+                    {
+                        // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
+                        char label[128];
+                        sprintf(label, "Mitarbeiter %d", i);
+                        if (ImGui::Selectable(label, selected == i))
+                            selected = i;
+                    }
+                    ImGui::EndChild();
+                }
                 ImGui::SameLine();
-                ImGui::Text("counter = %d", counter);
+
+                // Right
+                {
+                    ImGui::BeginGroup();
+                    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+                    ImGui::Text("Mitarbeiter %d", selected);
+                    ImGui::Separator();
+                    if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
+                    {
+                        if (ImGui::BeginTabItem("Description"))
+                        {
+                            ImGui::TextWrapped("Mitarbeiter Infos");
+                            ImGui::EndTabItem();
+                        }
+                        if (ImGui::BeginTabItem("Details"))
+                        {
+                            ImGui::Text("ID: 0123456789");
+                            ImGui::EndTabItem();
+                        }
+                        ImGui::EndTabBar();
+                    }
+                    ImGui::EndChild();
+                    if (ImGui::Button("Revert")) {}
+                    ImGui::SameLine();
+                    if (ImGui::Button("Save")) {}
+                    ImGui::EndGroup();
+                }
+                
 
                 ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                    
+                // Menu Bar
+                if (ImGui::BeginMenuBar())
+                {
+                    if (ImGui::BeginMenu("Menu"))
+                    {
+                        ImGui::EndMenu();
+                    }
+                    if (ImGui::BeginMenu("Examples"))
+                    {
+                        ImGui::EndMenu();
+                    }
+                    //if (ImGui::MenuItem("MenuItem")) {} // You can also use MenuItem() inside a menu bar!
+                    if (ImGui::BeginMenu("Tools"))
+                    {
+                        ImGui::EndMenu();
+                    }
+                    ImGui::EndMenuBar();
+                }
                 ImGui::End();
             }
+            
 
             // Rendering
             ImGui::Render();
@@ -112,7 +174,7 @@ public:
         //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 
         // Create window with graphics context
-        m_glfwWindow = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+        m_glfwWindow = glfwCreateWindow(m_windowWidth, m_windowHeight, m_appName.c_str(), NULL, NULL);
         if (m_glfwWindow == NULL)
             return 1;
         glfwMakeContextCurrent(m_glfwWindow);
@@ -121,6 +183,11 @@ public:
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
+        // Load default font
+		ImFontConfig fontConfig;
+		fontConfig.FontDataOwnedByAtlas = false;
+		ImFont* robotoFont = io.Fonts->AddFontFromMemoryTTF((void*)g_RobotoRegular, sizeof(g_RobotoRegular), 20.0f, &fontConfig);
+		io.FontDefault = robotoFont;
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
@@ -146,6 +213,7 @@ public:
         //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
         //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
         //IM_ASSERT(font != NULL);
+        m_initialized = true;
         return 0;
     }
 
@@ -163,5 +231,6 @@ private:
     int m_windowHeight;
     std::string m_appName;
     bool m_showDemoWindow;
+    bool m_initialized = false;
     GLFWwindow* m_glfwWindow;
 };
